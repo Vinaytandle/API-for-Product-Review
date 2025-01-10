@@ -10,6 +10,7 @@ def extract_reviews_from_page(url):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
+
         try:
             page.goto(url, timeout=10000)  # Set a timeout for loading the page
         except Exception as e:
@@ -26,7 +27,8 @@ def extract_reviews_from_page(url):
         review_elements = page.query_selector_all(".review")  # Adjust this to match the actual review element selector
 
         if not review_elements:
-            return json.dumps({"error": "No reviews found for this product."}), 404
+            # Return the page content if reviews are not found for debugging
+            return json.dumps({"error": "No reviews found for this product.", "page_content": page.content()}), 404
 
         for review_element in review_elements:
             # Extract review title (rating + title) and body
