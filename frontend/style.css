@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+form {
+    margin: 20px;
+}
+input, button {
+    padding: 10px;
+    margin: 5px;
+}
+#reviews-container {
+    margin-top: 20px;
+    text-align: left;
+}
+.review {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+}
