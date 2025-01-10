@@ -10,14 +10,23 @@ def extract_reviews_from_page(url):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        page.goto(url)
+        try:
+            page.goto(url, timeout=10000)  # Set a timeout for loading the page
+        except Exception as e:
+            return json.dumps({"error": f"Failed to load page: {str(e)}"}), 500
 
         reviews = []
 
-        # Wait for the reviews to load (adjust the selector if necessary)
-        page.wait_for_selector(".review")  # Adjust this to match the actual review container selector
+        try:
+            # Wait for the reviews to load (adjust the selector if necessary)
+            page.wait_for_selector(".review", timeout=5000)  # Adjust this to match the actual review container selector
+        except Exception:
+            return json.dumps({"error": "No reviews found or page did not load correctly."}), 404
 
         review_elements = page.query_selector_all(".review")  # Adjust this to match the actual review element selector
+
+        if not review_elements:
+            return json.dumps({"error": "No reviews found for this product."}), 404
 
         for review_element in review_elements:
             # Extract review title (rating + title) and body
@@ -41,15 +50,9 @@ def extract_reviews_from_page(url):
             body = body_element.inner_text() if body_element else "No review body available"
             body = body.strip().replace("\n", " ")
 
-
             # Extract reviewer name (if available)
-            reviewer_element = review_element.query_selector(".reviewer-name")# Replace with the correct class
-            if not review_elements:
-                return json.dumps({"error": "No reviews found for this product."}), 404
-
-            
+            reviewer_element = review_element.query_selector(".reviewer-name")  # Replace with the correct class
             reviewer = reviewer_element.inner_text() if reviewer_element else "Anonymous"
-            
 
             # Append the review to the list
             reviews.append({
@@ -72,6 +75,9 @@ def get_reviews():
 
     reviews = extract_reviews_from_page(url)
     
+    if isinstance(reviews, tuple):  # Check if the response is an error message
+        return reviews
+
     return json.dumps({
         "reviews_count": len(reviews),
         "reviews": reviews
