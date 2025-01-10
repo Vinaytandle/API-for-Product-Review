@@ -1,7 +1,7 @@
 document.getElementById("review-form").addEventListener("submit", async function (event) {
     event.preventDefault();
     const url = document.getElementById("product-url").value;
-    const apiUrl = "https://your-app.onrender.com/api/reviews?page=" + encodeURIComponent(url);
+    const apiUrl = "https://api-for-product-review-3.onrender.com/api/reviews?page=" + encodeURIComponent(url);
 
     document.getElementById("reviews-container").innerHTML = "Loading reviews...";
     try {
